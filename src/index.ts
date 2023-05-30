@@ -8,7 +8,7 @@ app.get('/',  (req, res)=> {
 })
 
 app.get('/hello',  (req, res)=> {
-    res.send("Hello BK");
+    res.send("Hello BK yetu, tuna");
 })
 
 const {APP_PORT} = process.env;
