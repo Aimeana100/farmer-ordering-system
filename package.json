@@ -1,0 +1,35 @@
+{
+  "name": "farmer-ordering-system",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "rimraf dist && npx tsc",
+    "start": "node dist",
+    "preserve": "npm run build",
+    "serve": "concurrently \"npx tsc -W\" \"nodemon dist\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Aimeana100/farmer-ordering-system.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Aimeana100/farmer-ordering-system/issues"
+  },
+  "homepage": "https://github.com/Aimeana100/farmer-ordering-system#readme",
+  "dependencies": {
+    "@types/express": "^4.17.17",
+    "@types/node": "^20.2.5",
+    "concurrently": "^8.0.1",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "rimraf": "^5.0.1",
+    "typescript": "^5.0.4"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  }
+}
