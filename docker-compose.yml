@@ -9,29 +9,43 @@ services:
     ports:
       - ${APP_PORT}:${APP_PORT}
     environment:
-      DEV_DATABASE_URL: postgres://${DB_USER}:${DB_PASSWORD}@db:${DB_PORT}/${DB_NAME}
+      # DEV_DATABASE_URL: postgres://${DB_USER}:${DB_PASSWORD}@db:${DB_PORT}/${DB_NAME}
+      DEV_DATABASE_URL: mongodb://mongo:27017/${DB_NAME}
+      APP_PORT: ${APP_PORT}
+      NODE_ENV: ${NODE_ENV}
+
     networks:
       - shared-network
     volumes:
       - .:/app/server
       - /app/server/node_modules
+      - ./dist:/app/server/dist
+      - ./node_modules:/app/server/node_modules
     depends_on:
-      - database
-
-  database:
-    container_name: agro_input_db 
-    image: "postgres"
+      - mongo
+  mongo:
+    image: mongo
     ports:
-      - 5433:5432
-    environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
+      - 27017:27017
     networks:
       - shared-network
     volumes:
-      - vol-data:/var/lib/postgresql/data
+      - data:/data/db
+
+  # database:
+  #   container_name: agro_input_db 
+  #   image: "mongo"
+  #   ports:
+  #     - 5433:5432
+  #   environment:
+  #     POSTGRES_USER: ${DB_USER}
+  #     POSTGRES_PASSWORD: ${DB_PASSWORD}
+  #     POSTGRES_DB: ${DB_NAME}
+  #   networks:
+  #     - shared-network
+  #   volumes:
+  #     - vol-data:/var/lib/postgresql/data
 volumes:
-  vol-data:
+  data:
 networks:
   shared-network:
