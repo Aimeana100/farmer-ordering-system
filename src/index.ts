@@ -17,7 +17,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use(swaggerRouter);
-app.use(routes);
+app.use('/api', routes);
 
 // Set `strictQuery` to `false` to prepare for the change
 mongoose.connection.once('open', () => {

@@ -9,31 +9,37 @@ import User from '../models/User';
 const JWT_SECRET_KEY: Secret = process.env.JWT_SECRET_KEY || 'JWT_SECRET_KEY';
 
 export const register = AsyncHandler(async (req: Request, res: Response) => {
-  const { username, password, telphone, email, role } = req.body;
+  const { names, username, password, telphone, email, role } = req.body;
+
+  // validate the inputs
+
+  if (!names || !username || !password || !telphone) {
+    return res.status(400).json({ status: 'error', message: 'names, username, password,telphone are requiled' });
+  }
 
   // Check if the user already exists
-  const existingUser = await User.findOne({ username });
+  const existingUser = await User.findOne({ username }).exec();
   if (existingUser) {
-    return res.status(400).json({ status: 'error', message: 'User already exists' });
+    return res.status(409).json({ status: 'error', message: 'User already exists' });
   }
 
   // Hash the password
   const hashedPassword = await bcrypt.hash(password, 10);
 
   // Create a new user
-  const user = await User.create({ username, telphone, email, password: hashedPassword, role });
+  const user = await User.create({ names, username, telphone, email, password: hashedPassword, role });
 
   // Generate a JWT token
   const token = jwt.sign({ user }, JWT_SECRET_KEY, { expiresIn: '30m' });
 
-  res.status(201).json({ status: 'success', data: { user, token } });
+  res.status(201).json({ status: 'Ok', data: { user, token } });
 });
 
 export const login = AsyncHandler(async (req: Request, res: Response) => {
   const { username, password } = req.body;
 
   // Check if the user exists
-  const user = await User.findOne({ username });
+  const user = await User.findOne({ username }).exec();
   if (!user) {
     return res.status(401).json({ status: 'error', message: 'user not registered' });
   }

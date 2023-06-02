@@ -15,6 +15,7 @@ interface ConnectionConfig {
 }
 
 const resolveConnectionString = (): ConnectionConfig => {
+  console.log(NODE_ENV);
   const connectionString: string = NODE_ENV === 'test' ? DATABASE_URI_TEST! : DATABASE_URI!;
   return { connectionString };
 };
