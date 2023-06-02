@@ -1,17 +1,19 @@
-import mongoose from 'mongoose';
+import mongoose, { Document, Schema } from 'mongoose';
 
-const { Schema } = mongoose;
+interface IOrder extends Document {
+  user: typeof mongoose.Schema.Types.ObjectId;
+  seeds: (typeof mongoose.Schema.Types.ObjectId)[];
+  fertilizers: (typeof mongoose.Schema.Types.ObjectId)[];
+  totalPrice: number;
+}
 
-const orderSchema = new Schema({
-  order_date: {
-    type: Date,
-    required: true,
-  },
-  land_size: {
-    type: Number,
-    required: true,
-  },
-  farmer: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+const OrderSchema: Schema = new Schema({
+  user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  seeds: [{ type: Schema.Types.ObjectId, ref: 'Seed', required: true }],
+  fertilizers: [{ type: Schema.Types.ObjectId, ref: 'Fertilizer', required: true }],
+  totalPrice: { type: Number, required: true },
 });
 
-export default mongoose.model('Order', orderSchema);
+const Order = mongoose.model<IOrder>('Order', OrderSchema);
+
+export default Order;
