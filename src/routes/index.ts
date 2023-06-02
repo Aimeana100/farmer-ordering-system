@@ -1,7 +1,11 @@
 import { Router } from 'express';
-import auth from './auth';
+import authRoutes from './auth';
+import fertilizerRoutes from './fertilizer';
+import seedRoutes from './seed';
 
 const router = Router();
 
-router.use('/auth', auth);
+router.use('/auth', authRoutes);
+router.use('/seed', seedRoutes);
+router.use('/fertilizer', fertilizerRoutes);
 export default router;
