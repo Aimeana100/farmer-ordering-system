@@ -33,6 +33,16 @@ services:
     volumes:
       - data:/data/db
 
+  fronte-end:
+    build: ../farmer-ordering-fronted
+    volumes:
+      - /app/node_modules
+      - ../farmer-ordering-fronted:/app
+    ports:
+      - "5173:5173"
+    depends_on:
+      - server
+
   # database:
   #   container_name: agro_input_db 
   #   image: "mongo"

@@ -1,4 +1,5 @@
-
+.git
+dist
 dist_tests
 node_modules
 .nyc_output
