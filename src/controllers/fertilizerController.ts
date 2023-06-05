@@ -8,28 +8,24 @@ const { ObjectId } = mongoose.Types;
 
 // Get all Fertilizers with associated fertilizer
 export const all = AsyncHandler(async (req: Request, res: Response) => {
-  const fertilizer = await Fertilizer.find();
+  const fertilizer = await Fertilizer.find().populate('seeds');
   return res.status(200).json({ status: 'OK', data: fertilizer });
 });
 
 // Create a fertilizer
 export const create = AsyncHandler(async (req: Request, res: Response) => {
-  const { name, kg_per_acre, status, seeds } = req.body;
-  if (!name || !kg_per_acre || !status) {
+  // validate inputs
+
+  const { name, kg_per_acre } = req.body;
+  if (!name || !kg_per_acre) {
     return res.status(400).json({ status: 'error', message: 'Please provide all required fields' });
   }
+  if (kg_per_acre > 3) return res.status(400).json({ status: 'error', message: "kg per acre shouldn't go beyond 3" });
 
   // Create the fertilizer
-  const fertilizer = await Fertilizer.create({ name, kg_per_acre, status });
+  const fertilizer = await Fertilizer.create({ name, kg_per_acre });
 
-  // Add seeds to the fertilizer
-  if (seeds && seeds.length > 0) {
-    const seedIds = await Seed.find({ _id: { $in: seeds } }, '_id');
-    fertilizer.seeds.push(...seedIds.map((seed) => seed._id));
-    await fertilizer.save();
-  }
-
-  return res.status(201).json({ status: 'ok', data: fertilizer });
+  return res.status(201).json({ status: 'ok', data: fertilizer, message: 'Fertilizer created successfully' });
 });
 
 export const destroy = AsyncHandler(async (req: Request, res: Response) => {

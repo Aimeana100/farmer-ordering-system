@@ -23,6 +23,8 @@ services:
       - ./node_modules:/app/server/node_modules
     depends_on:
       - mongo
+    links:
+      - "mongo"
   mongo:
     image: mongo
     ports:

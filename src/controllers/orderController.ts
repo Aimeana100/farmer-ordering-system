@@ -21,29 +21,25 @@ export const createOrder = AsyncHandler(async (req: CustomRequest, res: Response
   // Create the order
   const order = await Order.create({
     farmer: req.user._id,
+    seeds: [seed],
     landSize,
-    totalPrice: 0, // Calculate the total price
+    ferlitizer: [],
   });
 
-  res.status(201).json({ status: 'ok', data: order });
+  res.status(201).json({ status: 'ok', data: order, message: 'Order created' });
 });
 
-export const getOrders = async (req: Request, res: Response) => {
-  try {
-    const orders = await Order.find().populate('farmer').sort({ createdAt: -1 }).limit(5);
-    res.json({ status: 'ok', data: orders });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ status: 'error', message: 'Failed to retrieve orders' });
-  }
-};
+export const getOrders = AsyncHandler(async (req: Request, res: Response) => {
+  const orders = await Order.find().populate('farmer').sort({ createdAt: -1 }).limit(5);
+  res.json({ status: 'ok', data: orders });
+});
 
 export const updateOrderStatus = async (req: Request, res: Response) => {
   try {
-    const { orderId } = req.params;
+    const { id } = req.params;
     const { status } = req.body;
 
-    const order = await Order.findByIdAndUpdate(orderId, { status }, { new: true });
+    const order = await Order.findByIdAndUpdate(id, { status }, { new: false });
 
     if (!order) {
       return res.status(404).json({ status: 'error', message: 'Order not found' });

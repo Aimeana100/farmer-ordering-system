@@ -1,12 +1,12 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
-import jwt, { Secret } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import { AsyncHandler } from '../utils/AsyncHundler';
 
 import User from '../models/User';
 
 // const { JWT_SECRET_KEY } = process.env;
-const JWT_SECRET_KEY: Secret = process.env.JWT_SECRET_KEY || 'JWT_SECRET_KEY';
+const JWT_SECRET_KEY: string = process.env.JWT_SECRET || 'JWT_SECRET_KEY';
 
 export const register = AsyncHandler(async (req: Request, res: Response) => {
   const { names, username, password, telphone, email, role } = req.body;
