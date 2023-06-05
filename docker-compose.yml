@@ -18,8 +18,8 @@ services:
     networks:
       - shared-network
     volumes:
-      - .:/app
-      - /app/node_modules
+      - .:/server
+      - /server/node_modules
     depends_on:
       - mongo
     links:
@@ -32,16 +32,6 @@ services:
       - shared-network
     volumes:
       - data:/data/db
-
-  fronte-end:
-    build: ../farmer-ordering-fronted
-    volumes:
-      - /app/node_modules
-      - ../farmer-ordering-fronted:/app
-    ports:
-      - "5173:5173"
-    depends_on:
-      - server
 
   # database:
   #   container_name: agro_input_db 
