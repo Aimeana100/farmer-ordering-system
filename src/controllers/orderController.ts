@@ -1,76 +1,51 @@
 import { Request, Response } from 'express';
 import Order from '../models/Order';
-import SeedOrderDetails from '../models/SeedOrderDetails';
-import FertilizerOrderDetails from '../models/FertilizerOrderDetails';
+import Seed from '../models/Seed';
+import { AsyncHandler } from '../utils/AsyncHundler';
 
 interface CustomRequest extends Request {
   user: any;
 }
 
-export const createOrder = async (req: CustomRequest, res: Response) => {
-  try {
-    // Handle order creation logic here
-    // Calculate fertilizers and seeds quantity based on the land size
+export const createOrder = AsyncHandler(async (req: CustomRequest, res: Response) => {
+  // Handle order creation logic here
+  // Calculate fertilizers and seeds quantity based on the land size
 
-    // Example: Creating a new order
-    const { landSize, fertilizers, seeds } = req.body;
+  // Example: Creating a new order
+  const { landSize, seed } = req.body;
 
-    // Create the order
-    const order = await Order.create({
-      farmer: req.user._id,
-      landSize,
-      totalPrice: 0, // Calculate the total price
-    });
+  // Create the order
+  const order = await Order.create({
+    user: req.user._id,
+    seeds: [seed],
+    landSize,
+    ferlitizer: [],
+  });
 
-    // Create SeedOrderDetails
-    for (const seed of seeds) {
-      await SeedOrderDetails.create({
-        order: order._id,
-        seed: seed.seedId,
-        quantity: seed.quantity,
-      });
-    }
+  await order.save();
 
-    // Create FertilizerOrderDetails
-    for (const fertilizer of fertilizers) {
-      await FertilizerOrderDetails.create({
-        order: order._id,
-        fertilizer: fertilizer.fertilizerId,
-        quantity: fertilizer.quantity,
-      });
-    }
+  return res.status(201).json({ status: 'ok', data: order, message: 'Order created' });
+});
 
-    res.status(201).json({ status: 'ok', data: order });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ status: 'error', message: 'Failed to create order' });
+export const getOrders = AsyncHandler(async (req: CustomRequest, res: Response) => {
+  let orders = [];
+  if (req.user.role === 'farmer') {
+    orders = await Order.find({ user: req.user._id }).populate('user seeds').sort({ createdAt: -1 });
+  } else {
+    orders = await Order.find({}).populate('user seeds').sort({ createdAt: -1 });
   }
-};
+  return res.status(200).json({ status: 'ok', data: orders });
+});
 
-export const getOrders = async (req: Request, res: Response) => {
-  try {
-    const orders = await Order.find().populate('farmer').sort({ createdAt: -1 }).limit(5);
-    res.json({ status: 'ok', data: orders });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ status: 'error', message: 'Failed to retrieve orders' });
+export const updateOrderStatus = AsyncHandler(async (req: CustomRequest, res: Response) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  const order = await Order.findByIdAndUpdate(id, { status }, { new: false });
+
+  if (!order) {
+    return res.status(404).json({ status: 'error', message: 'Order not found' });
   }
-};
 
-export const updateOrderStatus = async (req: Request, res: Response) => {
-  try {
-    const { orderId } = req.params;
-    const { status } = req.body;
-
-    const order = await Order.findByIdAndUpdate(orderId, { status }, { new: true });
-
-    if (!order) {
-      return res.status(404).json({ status: 'error', message: 'Order not found' });
-    }
-
-    res.json({ status: 'ok', data: order });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ status: 'error', message: 'Failed to update order status' });
-  }
-};
+  return res.json({ status: 'ok', data: order });
+});

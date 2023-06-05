@@ -18,20 +18,30 @@ export const all = AsyncHandler(async (req: Request, res: Response) => {
 // Create a seed
 export const create = AsyncHandler(async (req: Request, res: Response) => {
   const { name, kg_per_acre, fertilizers } = req.body;
+
   if (!name || !kg_per_acre) {
     return res.status(400).json({ status: 'error', message: 'Please provide all required fields' });
   }
 
+  if (kg_per_acre > 1) return res.status(204).json({ status: 'error', message: 'kg per acre should be 1 max.' });
+  const seedExist = await Seed.findOne({ name });
+
+  if (seedExist) {
+    return res.status(409).json({ status: 'error', message: 'seed already exists' });
+  }
   const seed = await Seed.create({ name, kg_per_acre });
 
   // Add fertilizers to the seed
   if (fertilizers && fertilizers.length > 0) {
-    const fertilizerIds = await Fertilizer.find({ _id: { $in: fertilizers } }, '_id');
+    const fertilizerIds = await Fertilizer.find({ _id: { $in: fertilizers } });
     seed.fertilizers.push(...fertilizerIds.map((fertilizer) => fertilizer._id));
+    // eslint-disable-next-line prefer-const
+    for (let fertilizer of fertilizerIds) {
+      fertilizer.seeds.push(seed._id);
+      await fertilizer.save();
+    }
     await seed.save();
   }
-
-  return res.status(201).json({ status: 'ok', data: seed });
 });
 
 export const destroy = AsyncHandler(async (req: Request, res: Response) => {
