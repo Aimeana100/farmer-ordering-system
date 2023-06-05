@@ -1,8 +1,6 @@
 import { Request, Response } from 'express';
 import Order from '../models/Order';
 import Seed from '../models/Seed';
-import SeedOrderDetails from '../models/SeedOrderDetails';
-import FertilizerOrderDetails from '../models/FertilizerOrderDetails';
 import { AsyncHandler } from '../utils/AsyncHundler';
 
 interface CustomRequest extends Request {
@@ -16,38 +14,38 @@ export const createOrder = AsyncHandler(async (req: CustomRequest, res: Response
   // Example: Creating a new order
   const { landSize, seed } = req.body;
 
-  const seedOrdered = await Seed.find({ _id: seed }).populate('fertilizers');
-  console.log(seedOrdered);
   // Create the order
   const order = await Order.create({
-    farmer: req.user._id,
+    user: req.user._id,
     seeds: [seed],
     landSize,
     ferlitizer: [],
   });
 
-  res.status(201).json({ status: 'ok', data: order, message: 'Order created' });
+  await order.save();
+
+  return res.status(201).json({ status: 'ok', data: order, message: 'Order created' });
 });
 
-export const getOrders = AsyncHandler(async (req: Request, res: Response) => {
-  const orders = await Order.find().populate('farmer').sort({ createdAt: -1 }).limit(5);
-  res.json({ status: 'ok', data: orders });
-});
-
-export const updateOrderStatus = async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    const { status } = req.body;
-
-    const order = await Order.findByIdAndUpdate(id, { status }, { new: false });
-
-    if (!order) {
-      return res.status(404).json({ status: 'error', message: 'Order not found' });
-    }
-
-    res.json({ status: 'ok', data: order });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ status: 'error', message: 'Failed to update order status' });
+export const getOrders = AsyncHandler(async (req: CustomRequest, res: Response) => {
+  let orders = [];
+  if (req.user.role === 'farmer') {
+    orders = await Order.find({ user: req.user._id }).populate('user seeds').sort({ createdAt: -1 });
+  } else {
+    orders = await Order.find({}).populate('user seeds').sort({ createdAt: -1 });
   }
-};
+  return res.status(200).json({ status: 'ok', data: orders });
+});
+
+export const updateOrderStatus = AsyncHandler(async (req: CustomRequest, res: Response) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  const order = await Order.findByIdAndUpdate(id, { status }, { new: false });
+
+  if (!order) {
+    return res.status(404).json({ status: 'error', message: 'Order not found' });
+  }
+
+  return res.json({ status: 'ok', data: order });
+});

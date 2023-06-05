@@ -13,14 +13,13 @@ services:
       DEV_DATABASE_URL: mongodb://mongo:27017/${DB_NAME}
       APP_PORT: ${APP_PORT}
       NODE_ENV: ${NODE_ENV}
-
+      NODE_ENV=: ${NODE_ENV}
+      JWT_SECRET: ${JWT_SECRET}
     networks:
       - shared-network
     volumes:
-      - .:/app/server
-      - /app/server/node_modules
-      - ./dist:/app/server/dist
-      - ./node_modules:/app/server/node_modules
+      - .:/app
+      - /app/node_modules
     depends_on:
       - mongo
     links:

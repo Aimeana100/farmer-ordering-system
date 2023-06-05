@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "rimraf dist dist_tests && npx tsc",
+    "build": "rimraf dist && npx tsc",
     "start": "node dist",
     "preserve": "npm run build",
     "serve": "concurrently \"npx tsc -W\" \"nodemon --ext ts,json dist\"",
